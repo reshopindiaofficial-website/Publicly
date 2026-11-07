@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BPublicly</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=DM+Sans:wght@400;500;700&family=Noto+Serif+Devanagari:wght@500;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3efe8;--fg:#121212;--card:#faf7f2;--mut:#6b665c;--bd:#d9d3c7;--ac:#e8452c;--on:#fff;--d:"Fraunces","Noto Serif Devanagari",Georgia,serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0d0c;--fg:#f1ece2;--card:#161614;--mut:#9a958a;--bd:#2c2a26}}
+:root[data-theme="dark"]{--bg:#0d0d0c;--fg:#f1ece2;--card:#161614;--mut:#9a958a;--bd:#2c2a26}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 "DM Sans","Noto Sans Devanagari",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.07;z-index:50;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--fg);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
+.logo{font:600 24px var(--d);cursor:pointer;letter-spacing:-.03em}.logo b{font-style:italic;font-weight:400;color:var(--ac)}
+button,.btn{font:inherit;cursor:pointer;border:1px solid var(--fg);background:transparent;color:var(--fg);border-radius:99px;padding:9px 18px;text-decoration:none;display:inline-block;transition:background .2s,color .2s,transform .2s}
+header button{font-size:12px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;padding:8px 14px}
+button:hover{background:var(--fg);color:var(--bg)}
+.pri{background:var(--fg);color:var(--bg);font-weight:700}.pri:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
+.big{font-size:17px;padding:18px 34px}.big::after{content:" ↗";display:inline-block;transition:transform .2s}.big:hover::after{transform:translate(3px,-3px)}
+#menu{display:none;position:absolute;right:12px;top:100%;margin-top:8px;background:var(--bg);border:1px solid var(--fg);border-radius:8px;padding:16px;width:min(300px,calc(100vw - 24px));box-shadow:8px 8px 0 var(--fg)}
+#menu.open{display:block}#menu h4{margin:14px 0 6px;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.14em}#menu h4:first-child{margin-top:0}#menu .btn,#menu button,#menu select{width:100%;margin-bottom:6px;text-align:left;border-radius:8px}
+main{max-width:1040px;margin:0 auto;padding:0 18px 24px}.view{display:none}.view.on{display:block}
+@media(prefers-reduced-motion:no-preference){.view.on>*{animation:up .7s cubic-bezier(.2,.7,.2,1) both}.view.on>*:nth-child(2){animation-delay:.1s}.view.on>*:nth-child(3){animation-delay:.2s}@keyframes up{from{opacity:0;transform:translateY(24px)}}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:4px;padding:22px}.card h3{margin:0 0 6px;font:600 21px var(--d);letter-spacing:-.02em}.card p{margin:0;color:var(--mut);font-size:15px}
+label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--mut);margin:20px 0 4px}
+input,textarea,select{width:100%;font:inherit;color:var(--fg);background:transparent;border:0;border-bottom:1.5px solid var(--bd);border-radius:0;padding:10px 0;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{outline:0;border-color:var(--ac)}input[type=color]{height:42px;padding:2px;border:1px solid var(--bd)}
+#menu select{border:1px solid var(--fg);padding:10px;background:var(--bg)}
+textarea{min-height:84px;resize:vertical}.row{display:grid;gap:18px;grid-template-columns:1fr 1fr}@media(max-width:520px){.row{grid-template-columns:1fr}}
+#v-dashboard h2{font:600 clamp(36px,9vw,64px)/1 var(--d);letter-spacing:-.04em;margin:44px 0 8px}#v-dashboard .card{border-radius:4px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-top:10px}.thumbs div{position:relative}.thumbs img{width:100%;aspect-ratio:1;object-fit:cover;display:block}.thumbs button{position:absolute;top:4px;right:4px;padding:0 8px;line-height:22px;background:var(--bg)}
+.pf{--ac:#e8452c;padding-top:20px}.cover{padding:28px 0 8px;text-align:left;color:var(--fg);border-top:6px solid var(--ac)}
+.cover .av{width:56px;height:56px;background:var(--ac);color:#fff;font:600 28px var(--d);display:grid;place-items:center;margin:0 0 28px}
+.chip{display:inline-block;border:1px solid var(--fg);border-radius:99px;padding:2px 14px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.cover h1{font:600 clamp(42px,12vw,92px)/1 var(--d);letter-spacing:-.04em;margin:14px 0 0}.cover p{font:italic 400 clamp(20px,4vw,28px) var(--d);color:var(--mut);margin:10px 0 0}
+.cta{display:grid;margin:28px 0;border-top:1px solid var(--fg)}.cta a{display:flex;justify-content:space-between;align-items:center;padding:18px 4px;border-bottom:1px solid var(--bd);color:var(--fg);text-decoration:none;font:600 20px var(--d);transition:padding .2s,color .2s}.cta a::after{content:"↗";color:var(--ac)}.cta a:hover{padding-left:14px;color:var(--ac)}
+.sec{margin:44px 0}.sec h2{font:italic 400 34px var(--d);margin:0 0 10px;padding-bottom:10px;border-bottom:1px solid var(--fg);letter-spacing:-.02em}
+.svc{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--bd);font-size:18px}.svc b{color:var(--ac);font-family:var(--d)}
+.gal{display:grid;grid-template-columns:1fr 1fr;gap:6px}.gal img{width:100%;aspect-ratio:1;object-fit:cover;cursor:zoom-in;transition:filter .3s}.gal img:first-child{grid-column:span 2;aspect-ratio:16/10}.gal img:hover{filter:brightness(1.08)}
+@media(min-width:700px){.gal{grid-template-columns:repeat(3,1fr)}.gal img:first-child{grid-column:span 2;grid-row:span 2;aspect-ratio:auto;height:100%}}
+.sec.card{background:var(--card);border-radius:4px}
+#lb{display:none;position:fixed;inset:0;background:#000e;z-index:60;place-items:center}#lb.on{display:grid}#lb img{max-width:95vw;max-height:90vh}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 20px;border-radius:99px;display:none;z-index:70}.muted{color:var(--mut);font-size:14px}
+
+.sheet{position:fixed;inset:0;background:#000a;z-index:40;display:none;align-items:flex-end;justify-content:center}.sheet.on{display:flex}.sheet>div{background:var(--bg);width:min(640px,100%);max-height:92vh;overflow:auto;padding:22px 20px calc(24px + env(safe-area-inset-bottom,0px));border-radius:20px 20px 0 0;border-top:6px solid var(--ac)}
+@media(min-width:700px){.sheet{align-items:center}.sheet>div{border-radius:6px;border:1px solid var(--fg);border-top:6px solid var(--ac)}}
+.sheet h3{font:600 32px var(--d);margin:0 0 4px;letter-spacing:-.03em}.hint{font-size:12px;color:var(--mut);margin-top:4px;min-height:18px}.ok{color:#1a8a4a}.no{color:var(--ac)}
+.price{display:flex;align-items:baseline;gap:12px;font:600 clamp(72px,20vw,150px)/1 var(--d);letter-spacing:-.05em}.price small{font:400 17px "DM Sans","Noto Sans Devanagari",sans-serif;color:var(--mut);letter-spacing:0}
+.burger{width:44px;height:40px;padding:0;display:none}.pfpage .burger{display:inline-block}.pfpage #hcta{display:none}.burger i{display:block;width:18px;height:2px;background:currentColor;margin:4px auto}.burger:hover i{background:var(--bg)}
+.hide{display:none!important}.pfm{color:var(--mut);font-size:13px;padding:36px 0 8px}.pfm a{color:var(--ac)}
+.pff{margin:64px -18px 0;padding:36px 18px calc(22px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);border-top:4px solid var(--ac)}
+.pff .ph1{display:flex;align-items:center;gap:14px}
+.pff .mrk{flex:none;width:44px;height:44px;background:var(--ac);color:#fff;font:600 22px var(--d);display:grid;place-items:center;border-radius:6px}
+.pff .nm{font:600 clamp(24px,6.5vw,36px)/1.25 var(--d);letter-spacing:-.01em;word-break:break-word}
+.pff .inf{margin:28px 0 0;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.pff dt{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;opacity:.55;margin-bottom:3px}
+.pff dd{margin:0;font-size:15px;line-height:1.5}.pff dd a{color:inherit;text-decoration:none}
+.pff .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.pff .acts a{padding:11px 20px;border-radius:99px;font-size:14px;font-weight:700;text-decoration:none;border:1px solid color-mix(in srgb,var(--bg) 35%,transparent);color:var(--bg);transition:background .2s,border-color .2s,color .2s}
+.pff .acts a:first-child{background:var(--ac);border-color:var(--ac);color:#fff}
+.pff .acts a:hover{background:var(--bg);border-color:var(--bg);color:var(--fg)}
+.pff .cp{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:32px;padding-top:16px;border-top:1px solid color-mix(in srgb,var(--bg) 18%,transparent);font-size:12px;opacity:.7}
+.pff .cp a{color:var(--bg)}
+.lgo{display:block;width:calc(100% + 36px);max-width:none;margin:-28px -18px 28px;aspect-ratio:4/3;max-height:440px;object-fit:cover;object-position:center;border:0;border-radius:0;padding:0;background:var(--card)}#lprev{width:72px;height:72px;object-fit:contain;background:#fff;border:1px solid var(--bd);border-radius:12px;padding:4px;margin-bottom:8px;display:block}
+
+/* ===== NAYA HOME SCREEN ===== */
+.hm-hero{display:grid;gap:36px;padding:40px 0 8px;align-items:center}
+@media(min-width:860px){.hm-hero{grid-template-columns:1.1fr .9fr;gap:56px;padding:76px 0 24px}}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid var(--bd);background:var(--card);border-radius:99px;font-size:13px;font-weight:600;color:var(--mut)}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ac)}
+.hm-hero h1{font:600 clamp(38px,6.4vw,68px)/1.08 var(--d);letter-spacing:-.03em;margin:20px 0 0}
+.hm-hero h1 em{display:block;font-style:italic;font-weight:400;color:var(--ac)}
+:lang(hi) .hm-hero h1{line-height:1.25;letter-spacing:0}
+.lead{color:var(--mut);font-size:18px;max-width:520px;margin:20px 0 0}
+.acts2{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.lg{padding:15px 28px;font-size:16px}
+.ticks{display:flex;gap:8px 22px;flex-wrap:wrap;margin:26px 0 0;padding:0;list-style:none;color:var(--mut);font-size:14px}
+.ticks li::before{content:"✓";color:var(--ac);font-weight:700;margin-right:8px}
+.mockw{position:relative;display:grid;place-items:center;padding:24px 0}
+.mockw::before{content:"";position:absolute;inset:4% 6%;border-radius:32px;background:color-mix(in srgb,var(--ac) 9%,var(--card));border:1px solid var(--bd)}
+.mock{position:relative;width:min(270px,76vw);border-radius:34px;border:9px solid #17171a;background:#fff;color:#17171a;overflow:hidden;box-shadow:0 30px 60px -22px rgba(0,0,0,.4)}
+.mk-top{height:6px;background:var(--ac)}.mk-body{padding:18px 16px}
+.mk-av{width:38px;height:38px;border-radius:8px;background:var(--ac);color:#fff;display:grid;place-items:center;font:600 19px var(--d)}
+.mk-chip{display:inline-block;margin-top:12px;border:1px solid #17171a;border-radius:99px;padding:1px 10px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.mk-nm{font:600 28px/1.1 var(--d);letter-spacing:-.02em;margin-top:8px}.mk-sub{font:italic 400 14px var(--d);color:#6b665c;margin-top:2px}
+.mk-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.mk-btns span{text-align:center;border:1px solid #d9d3c7;border-radius:99px;padding:7px 0;font-size:12px;font-weight:700}.mk-btns .a{background:var(--ac);border-color:var(--ac);color:#fff}
+.mk-gal{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:14px}.mk-gal u{height:56px;border-radius:6px;background:linear-gradient(135deg,#eadfcb,#d3c2a6)}.mk-gal u:first-child{grid-column:span 2;height:96px;background:linear-gradient(135deg,#26262a,#5a5a60)}
+.flt{position:absolute;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:99px;padding:8px 14px;font-size:12px;font-weight:700;box-shadow:0 10px 24px -10px rgba(0,0,0,.3)}.flt1{top:12%;right:0}.flt2{bottom:14%;left:0}
+.hstats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--bd);border-radius:14px;background:var(--card);margin:40px 0 0;overflow:hidden}
+.hstats div{padding:22px 10px;text-align:center;border-right:1px solid var(--bd)}.hstats div:last-child{border:0}
+.hstats b{display:block;font:600 clamp(24px,5vw,38px)/1.2 var(--d)}.hstats span{font-size:13px;color:var(--mut)}
+.hs{margin:88px 0 0;scroll-margin-top:80px}
+.hs h2{font:600 clamp(28px,4.6vw,44px)/1.15 var(--d);letter-spacing:-.02em;margin:0 0 28px;max-width:640px}
+:lang(hi) .hs h2,:lang(hi) .cta3 h2{line-height:1.3;letter-spacing:0}
+.chips{display:flex;flex-wrap:wrap;gap:10px}.chips span{padding:10px 18px;border:1px solid var(--bd);background:var(--card);border-radius:99px;font-size:15px;font-weight:500}
+.g3{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.hc{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:26px}
+.hc h3{margin:16px 0 6px;font:600 20px/1.3 var(--d);letter-spacing:-.01em}.hc p{margin:0;color:var(--mut);font-size:15px}
+.sn{width:36px;height:36px;border-radius:50%;background:var(--fg);color:var(--bg);display:grid;place-items:center;font:700 14px "DM Sans",sans-serif}
+.ico{width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--ac) 12%,transparent);color:var(--ac);display:grid;place-items:center}
+.ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.faq{border:1px solid var(--bd);border-radius:14px;background:var(--card);overflow:hidden;max-width:760px}
+.faq details{border-bottom:1px solid var(--bd);padding:0 22px}.faq details:last-child{border:0}
+.faq summary{cursor:pointer;list-style:none;padding:18px 0;font-weight:600;display:flex;justify-content:space-between;gap:12px}
+.faq summary::-webkit-details-marker{display:none}.faq summary::after{content:"+";color:var(--ac);font-size:22px;line-height:1}.faq details[open] summary::after{content:"–"}
+.faq p{margin:0 0 18px;color:var(--mut);font-size:15px}
+.cta3{margin:88px 0 0;padding:56px 24px;background:var(--fg);color:var(--bg);border-radius:20px;text-align:center}
+.cta3 h2{font:600 clamp(28px,5vw,48px)/1.15 var(--d);letter-spacing:-.02em;margin:0 auto 26px;max-width:640px}
+.cta3 .pri{background:var(--ac);border-color:var(--ac);color:#fff}.cta3 .pri:hover{background:var(--bg);color:var(--fg);border-color:var(--bg)}
+.cta3 small{display:block;margin-top:18px;opacity:.65;font-size:13px}
+footer.f{margin-top:64px;padding:24px 0 8px;border-top:1px solid var(--bd);color:var(--mut);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" id="logo" onclick="location.href=location.pathname"></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button id="hcta" class="pri" onclick="openSheet()" data-i="create"></button>
+    <button class="burger" onclick="tm(event)" aria-label="Menu"><i></i><i></i><i></i></button>
+  </div>
+  <div id="menu">
+    <h4 data-i="lang"></h4>
+    <select id="langSel" onchange="setLang(this.value)"><option value="hi">हिन्दी</option><option value="en">English</option></select>
+    <h4 data-i="app"></h4>
+    <button onclick="installApp()" data-i="install"></button>
+    <h4 data-i="share"></h4>
+    <button onclick="shareStore()" data-i="sharebtn"></button>
+    <div id="ownm" class="hide">
+      <h4 data-i="own"></h4>
+      <button onclick="openSheet(true)" data-i="edit"></button>
+      <button onclick="copyEdit()" data-i="editlink"></button>
+    </div>
+  </div>
+</header>
+<main>
+<section id="v-home" class="view">
+  <div class="hm-hero">
+    <div>
+      <span class="pill" data-i="badge"></span>
+      <h1><span data-i="h1a"></span> <em data-i="h1b"></em></h1>
+      <p class="lead" data-i="h2"></p>
+      <div class="acts2"><button class="pri lg" onclick="openSheet()" data-i="create"></button><a class="btn lg" href="#how" data-i="how2"></a></div>
+      <ul class="ticks"><li data-i="tk1"></li><li data-i="tk2"></li><li data-i="tk3"></li></ul>
+    </div>
+    <div class="mockw" aria-hidden="true">
+      <div class="mock"><div class="mk-top"></div><div class="mk-body">
+        <div class="mk-av">R</div><span class="mk-chip">📍 Sanchore</span><div class="mk-nm">Royal Salon</div><div class="mk-sub">Ramesh Kumar</div>
+        <div class="mk-btns"><span class="a">Call</span><span>WhatsApp</span></div>
+        <div class="mk-gal"><u></u><u></u><u></u></div>
+      </div></div>
+      <div class="flt flt1">● Live</div><div class="flt flt2">📍 Map</div>
+    </div>
+  </div>
+  <div class="hstats"><div><b>2 min</b><span data-i="st1"></span></div><div><b>1 link</b><span data-i="st2"></span></div><div><b data-i="free"></b><span data-i="st3"></span></div></div>
+  <div class="hs"><h2 data-i="cat"></h2>
+    <div class="chips"><span data-i="c1"></span><span data-i="c2"></span><span data-i="c3"></span><span data-i="c4"></span><span data-i="c5"></span><span data-i="c6"></span><span data-i="c7"></span></div></div>
+  <div class="hs" id="how"><h2 data-i="how"></h2>
+    <div class="g3">
+      <div class="hc"><div class="sn">1</div><h3 data-i="s1t"></h3><p data-i="s1d"></p></div>
+      <div class="hc"><div class="sn">2</div><h3 data-i="s2t"></h3><p data-i="s2d"></p></div>
+      <div class="hc"><div class="sn">3</div><h3 data-i="s3t"></h3><p data-i="s3d"></p></div>
+    </div></div>
+  <div class="hs"><h2 data-i="why"></h2>
+    <div class="g3">
+      <div class="hc"><div class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg></div><h3 data-i="f1t"></h3><p data-i="f1d"></p></div>
+      <div class="hc"><div class="ico"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/></svg></div><h3 data-i="f2t"></h3><p data-i="f2d"></p></div>
+      <div class="hc"><div class="ico"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></svg></div><h3 data-i="f3t"></h3><p data-i="f3d"></p></div>
+    </div></div>
+  <div class="hs"><h2 data-i="faq"></h2>
+    <div class="faq">
+      <details><summary data-i="q1"></summary><p data-i="a1"></p></details>
+      <details><summary data-i="q2"></summary><p data-i="a2"></p></details>
+      <details><summary data-i="q3"></summary><p data-i="a3"></p></details>
+    </div></div>
+  <div class="cta3"><h2 data-i="fin"></h2><button class="pri lg" onclick="openSheet()" data-i="create"></button><small><span data-i="pr"></span> · <span data-i="ptxt"></span></small></div>
+  <footer class="f">© <span class="bn"></span> · <span data-i="foot"></span></footer>
+</section>
+<section id="v-pf" class="view"><div id="pf" class="pf"></div></section>
+</main>
+<div class="sheet" id="sheet" onclick="if(event.target===this)closeSheet()"><div>
+  <h3 id="sh3"></h3>
+  <label data-i="oname"></label><input id="f_owner" autocomplete="name">
+  <label data-i="sname"></label><input id="f_name" autocomplete="off"><div class="hint" id="shint"></div>
+  <label data-i="slogo"></label><img id="lprev" class="hide" alt=""><input id="f_logo" type="file" accept="image/*"><div class="hint" id="lhint"></div>
+  <label data-i="sloc"></label><input id="f_loc">
+  <div class="row"><div><label data-i="sph"></label><input id="f_phone" type="tel" inputmode="tel"></div><div><label data-i="swa"></label><input id="f_wa" type="tel" inputmode="tel"></div></div>
+  <label data-i="sab"></label><textarea id="f_about"></textarea>
+  <label data-i="sphotos"></label><input id="f_file" type="file" accept="image/*" multiple><div class="hint" id="uph"></div>
+  <div class="thumbs" id="thumbs"></div>
+  <div class="bar"><button class="pri" id="pubb" onclick="pub()"></button><button onclick="closeSheet()" data-i="cancel"></button></div>
+</div></div>
+<div id="lb" onclick="this.classList.remove('on')"><img alt=""></div>
+<div id="toast"></div>
+<script>
+/* ===== CONFIG: yahan apni details bharein ===== */
+const BRAND=["BPublic","ly"];            // website ka naam baad mein yahin badlein
+const FB={apiKey:"AIzaSyD-ElLSBQh8h6e3XTOfV23PdApdGMlG4M0",authDomain:"ai-character-khan.firebaseapp.com",projectId:"ai-character-khan",storageBucket:"ai-character-khan.firebasestorage.app",messagingSenderId:"430700095077",appId:"1:430700095077:web:1b36b10a5c775ac756888c"};
+const CLOUD="lfsdugn3",PRESET="khan_upload"; // Cloudinary cloud name + unsigned upload preset
+/* ============================================== */
+const T={en:{create:"Create Portfolio",lang:"Language",app:"App",install:"Download app",share:"Share",sharebtn:"Share your store",own:"Your page",edit:"Edit portfolio",editlink:"Copy private edit link",badge:"Online portfolio for your shop",h1a:"Your shop,",h1b:"shining online.",h2:"Add photos, location and your WhatsApp number and get a professional page instantly. No login needed.",st1:"to go live",st2:"ready to share",st3:"no payment needed",free:"Free",how:"How it works",s1t:"Fill in details",s1d:"Shop name, location, numbers and a few photos.",s2t:"Page is created instantly",s2d:"Your own link is generated automatically.",s3t:"Share the link",s3d:"On WhatsApp, Instagram or your visiting card.",why:"Why choose us",f1t:"No login",f1d:"No sign-up or password. Just fill in and publish.",f2t:"Mobile-first",f2d:"Looks perfect on every phone.",f3t:"One link",f3d:"One clean link customers can open anywhere.",pr:"No payment needed",ptxt:"for every portfolio page, for now",fin:"Show your shop to your customers",foot:"Made for small businesses",nsheet:"Create your portfolio",esheet:"Edit your portfolio",sname:"Shop name",oname:"Your name",slogo:"Shop logo (optional)",slink:"Page name (english letters/numbers)",sloc:"Shop location",sph:"Mobile number",swa:"WhatsApp number",sab:"About your shop (optional)",sphotos:"Photos (up to 8)",pub:"Publish",save:"Save changes",cancel:"Close",avail:"Available ✓",taken:"Name already used – a number will be added to your link",chk:"Checking…",up:"Uploading photos…",req:"Please fill your name, shop name, location and mobile",err:"Something went wrong, try again",copied:"Link copied",ins:"Browser menu → Add to Home Screen",call:"Call",chat:"Chat on WhatsApp",map:"View location",abh:"About",gal:"Gallery",nf:"Portfolio not found",mad:"Made with",mk:"Create yours",ow2:"Owner",lc2:"Location",ph2:"Phone",how2:"See how it works",tk1:"No login",tk2:"Completely free",tk3:"Live in 2 minutes",cat:"Made for every kind of shop",c1:"Salon",c2:"Clothing",c3:"Clinic",c4:"Restaurant",c5:"Studio",c6:"Electronics",c7:"Mobile shop",faq:"Common questions",q1:"Is it really free?",a1:"Yes. Creating a portfolio page costs nothing right now.",q2:"Do I need to sign up or know technology?",a2:"No login or password. Fill in a simple form and your page is ready with its own link.",q3:"Can I change my details later?",a3:"Yes. Open the menu on your page to edit it, or use your private edit link on any phone. Keep that link safe."},
+hi:{create:"पोर्टफ़ोलियो बनाएं",lang:"भाषा",app:"ऐप",install:"ऐप डाउनलोड करें",share:"शेयर",sharebtn:"अपना स्टोर शेयर करें",own:"आपका पेज",edit:"पोर्टफ़ोलियो बदलें",editlink:"निजी एडिट लिंक कॉपी करें",badge:"आपकी दुकान का ऑनलाइन पोर्टफ़ोलियो",h1a:"आपकी दुकान,",h1b:"अब ऑनलाइन चमकेगी।",h2:"फ़ोटो, लोकेशन और WhatsApp नंबर जोड़ें और तुरंत अपना प्रोफ़ेशनल पेज पाएं। कोई लॉगिन नहीं चाहिए।",st1:"में लाइव",st2:"शेयर के लिए तैयार",st3:"कोई पैसा नहीं",free:"मुफ़्त",how:"यह कैसे काम करता है",s1t:"जानकारी भरें",s1d:"दुकान का नाम, लोकेशन, नंबर और कुछ फ़ोटो।",s2t:"पेज तुरंत बनता है",s2d:"आपके नाम का अपना लिंक अपने आप बन जाता है।",s3t:"लिंक शेयर करें",s3d:"WhatsApp, Instagram या विज़िटिंग कार्ड पर।",why:"हमें क्यों चुनें",f1t:"कोई लॉगिन नहीं",f1d:"न साइन अप, न पासवर्ड। बस भरें और पब्लिश करें।",f2t:"मोबाइल-फ़र्स्ट",f2d:"हर फ़ोन पर बढ़िया दिखता है।",f3t:"एक लिंक",f3d:"एक साफ़ लिंक जिसे ग्राहक कहीं भी खोल सकें।",pr:"कोई पैसा नहीं लगता",ptxt:"अभी हर पोर्टफ़ोलियो पेज के लिए",fin:"अपनी दुकान ग्राहकों को दिखाइए",foot:"छोटे बिज़नेस के लिए बनाया गया",nsheet:"अपना पोर्टफ़ोलियो बनाएं",esheet:"अपना पोर्टफ़ोलियो बदलें",sname:"दुकान का नाम",oname:"आपका नाम",slogo:"दुकान का लोगो (वैकल्पिक)",slink:"पेज का नाम (अंग्रेज़ी अक्षर/अंक)",sloc:"दुकान की लोकेशन",sph:"मोबाइल नंबर",swa:"WhatsApp नंबर",sab:"दुकान के बारे में (वैकल्पिक)",sphotos:"फ़ोटो (अधिकतम 8)",pub:"पब्लिश करें",save:"बदलाव सेव करें",cancel:"बंद करें",avail:"उपलब्ध है ✓",taken:"यह नाम पहले से लिया है – लिंक में नंबर जुड़ जाएगा",chk:"जाँच रहे हैं…",up:"फ़ोटो अपलोड हो रही हैं…",req:"कृपया अपना नाम, दुकान का नाम, लोकेशन और मोबाइल भरें",err:"कुछ गलत हुआ, दोबारा कोशिश करें",copied:"लिंक कॉपी हुआ",ins:"ब्राउज़र मेन्यू → होम स्क्रीन पर जोड़ें",call:"कॉल करें",chat:"WhatsApp पर बात करें",map:"लोकेशन देखें",abh:"परिचय",gal:"गैलरी",nf:"यह पोर्टफ़ोलियो नहीं मिला",mad:"बनाया गया",mk:"अपना बनाएं",ow2:"मालिक",lc2:"पता",ph2:"फ़ोन",how2:"देखें यह कैसे काम करता है",tk1:"कोई लॉगिन नहीं",tk2:"बिल्कुल मुफ़्त",tk3:"2 मिनट में लाइव",cat:"हर तरह की दुकान के लिए",c1:"सैलून",c2:"कपड़े",c3:"क्लिनिक",c4:"रेस्टोरेंट",c5:"स्टूडियो",c6:"इलेक्ट्रॉनिक्स",c7:"मोबाइल शॉप",faq:"आम सवाल",q1:"क्या यह सच में मुफ़्त है?",a1:"हाँ। अभी पोर्टफ़ोलियो पेज बनाने का कोई पैसा नहीं लगता।",q2:"क्या साइन अप करना या टेक्नोलॉजी आना ज़रूरी है?",a2:"नहीं। न लॉगिन, न पासवर्ड। एक आसान फ़ॉर्म भरें और आपका पेज अपने लिंक के साथ तैयार है।",q3:"क्या मैं बाद में जानकारी बदल सकता हूँ?",a3:"हाँ। अपने पेज पर मेन्यू खोलकर एडिट करें, या किसी भी फ़ोन पर अपना निजी एडिट लिंक इस्तेमाल करें। उस लिंक को संभालकर रखें।"}};
+const $=id=>document.getElementById(id),esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let lang=localStorage.getItem("pf_l")||"hi",cur=null,owner=false,editing=false,P=[],dip=null,mine=null,tmr;
+try{mine=JSON.parse(localStorage.getItem("pf_mine"))}catch(e){}
+const t=k=>T[lang][k]||k,num=d=>{d=(d||"").replace(/\D/g,"");return d.length===10?"91"+d:d};
+let db;try{firebase.initializeApp(FB);db=firebase.firestore()}catch(e){}
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,"0")).join("");
+const rk=()=>[...crypto.getRandomValues(new Uint8Array(14))].map(b=>b.toString(36).padStart(2,"0")).join("").slice(0,24);
+const toast=m=>{const e=$("toast");e.textContent=m;e.style.display="block";clearTimeout(e._t);e._t=setTimeout(()=>e.style.display="none",2400)};
+const url=()=>location.origin+location.pathname+"?s="+cur.slug;
+/* ===== Local cache: ek baar Firebase se aaya data phone me save, agle visit par wahin se load ===== */
+const CK="pf_c_",REFRESH=true; // REFRESH=false karne par Firebase tabhi padhega jab local me data na ho
+const cstrip=d=>{const x={...d};delete x.t;delete x.slug;return x};
+const cget=s=>{try{return JSON.parse(localStorage.getItem(CK+s))}catch(e){return null}};
+const cset=(s,d)=>{try{localStorage.setItem(CK+s,JSON.stringify(cstrip(d)))}catch(e){}};
+const cdel=s=>{try{localStorage.removeItem(CK+s)}catch(e){}};
+function applyLang(){document.documentElement.lang=lang;$("langSel").value=lang;document.querySelectorAll("[data-i]").forEach(e=>e.textContent=t(e.dataset.i));$("logo").innerHTML=BRAND[0]+"<b>"+BRAND[1]+"</b>";document.querySelectorAll(".bn").forEach(e=>e.textContent=BRAND.join(""));$("sh3").textContent=t(editing?"esheet":"nsheet");$("pubb").textContent=t(editing?"save":"pub");if(cur)renderPF()}
+function setLang(l){lang=l;localStorage.setItem("pf_l",l);applyLang()}
+function tm(e){e.stopPropagation();$("menu").classList.toggle("open")}
+document.addEventListener("click",e=>{if(!$("menu").contains(e.target))$("menu").classList.remove("open")});
+function view(v){["home","pf"].forEach(x=>$("v-"+x).classList.toggle("on",x===v));document.body.classList.toggle("pfpage",v==="pf")}
+async function init(){
+  const q=new URLSearchParams(location.search),s=(q.get("s")||"").toLowerCase(),k=q.get("k");
+  applyLang();
+  if(!s){if(mine&&mine.slug){location.replace("?s="+mine.slug);return}view("home");return}
+  view("pf");
+  const key=k||(mine&&mine.slug===s?mine.key:null);
+  const notFound=()=>{$("pf").innerHTML='<div class="cover"><h1>'+t("nf")+'</h1></div><div class="bar"><button class="pri" onclick="location.href=location.pathname">'+t("create")+'</button></div>'};
+  const show=async d=>{
+    cur=d;cur.slug=s;
+    owner=!!key&&(await sha(key))===cur.ek;
+    if(owner){mine={slug:s,key};try{localStorage.setItem("pf_mine",JSON.stringify(mine))}catch(e){}if(k)history.replaceState(null,"","?s="+s)}
+    renderPF();
+  };
+  /* 1) pehle local storage se turant dikhao */
+  const cached=cget(s);
+  if(cached&&cached.name){
+    const old=JSON.stringify(cstrip(cached));
+    await show(cached);
+    /* chup-chaap background me Firebase se naya data check karo (edit hua ho to update ho jaye) */
+    if(REFRESH&&db)db.collection("portfolios").doc(s).get().then(async d=>{
+      if(!d.exists){cdel(s);cur=null;owner=false;notFound();return}
+      const f=cstrip(d.data());
+      if(JSON.stringify(f)!==old){cset(s,f);await show(f)}
+    }).catch(()=>{});
+    return;
+  }
+  /* 2) local me kuch nahi mila (pehli visit ya storage saaf hua) to Firebase se lo aur save karo */
+  try{
+    const d=await db.collection("portfolios").doc(s).get();
+    if(!d.exists){notFound();return}
+    const f=cstrip(d.data());cset(s,f);await show(f);
+  }catch(e){$("pf").innerHTML='<div class="cover"><h1>'+t("err")+'</h1></div>'}
+}
+function renderPF(){
+  const c=cur,ph=num(c.ph),wa=num(c.wa||c.ph);document.title=c.name+" – "+BRAND.join("");
+  $("ownm").classList.toggle("hide",!owner);
+  $("pf").innerHTML='<div class="cover">'+(c.logo?'<img class="lgo" src="'+esc(c.logo)+'" alt="">':'<div class="av">'+esc(c.name[0].toUpperCase())+'</div>')+'<span class="chip">📍 '+esc(c.loc)+'</span><h1>'+esc(c.name)+'</h1>'+(c.owner?'<p>'+esc(c.owner)+'</p>':"")+'</div>'
+  +'<div class="cta"><a href="tel:+'+ph+'">'+t("call")+'</a><a href="https://wa.me/'+wa+'">'+t("chat")+'</a><a href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(c.loc)+'">'+t("map")+'</a></div>'
+  +(c.about?'<div class="sec"><h2>'+t("abh")+'</h2><div>'+esc(c.about).replace(/\n/g,"<br>")+'</div></div>':"")
+  +((c.photos||[]).length?'<div class="sec"><h2>'+t("gal")+'</h2><div class="gal">'+c.photos.map(p=>'<img src="'+esc(p)+'" alt="" loading="lazy">').join("")+'</div></div>':"")
+  +'<div class="pff"><div class="ph1"><div class="mrk">'+esc(c.name[0].toUpperCase())+'</div><div class="nm">'+esc(c.name)+'</div></div>'
+  +'<dl class="inf">'+(c.owner?'<div><dt>'+t("ow2")+'</dt><dd>'+esc(c.owner)+'</dd></div>':"")+'<div><dt>'+t("lc2")+'</dt><dd>'+esc(c.loc)+'</dd></div><div><dt>'+t("ph2")+'</dt><dd><a href="tel:+'+ph+'">+'+ph+'</a></dd></div></dl>'
+  +'<div class="acts"><a href="tel:+'+ph+'">'+t("call")+'</a><a href="https://wa.me/'+wa+'">'+t("chat")+'</a></div>'
+  +'<div class="cp"><span>© '+new Date().getFullYear()+' '+esc(c.name)+'</span>'+(owner?"":'<a href="'+location.pathname+'">'+t("mk")+' ↗</a>')+'</div></div>';
+  document.querySelectorAll(".gal img").forEach(i=>i.onclick=()=>{$("lb").querySelector("img").src=i.src;$("lb").classList.add("on")});
+}
+function thumbs(){$("thumbs").innerHTML=P.map((p,i)=>'<div><img src="'+esc(p)+'" alt=""><button onclick="P.splice('+i+',1);thumbs()">×</button></div>').join("")}
+function openSheet(ed){
+  editing=!!ed&&!!cur;$("menu").classList.remove("open");
+  const v=(id,x)=>$(id).value=x||"";
+  v("f_owner",editing?cur.owner:"");v("f_name",editing?cur.name:"");v("f_loc",editing?cur.loc:"");v("f_phone",editing?cur.ph:"");v("f_wa",editing?cur.wa:"");v("f_about",editing?cur.about:"");
+  $("shint").textContent="";chk();P=editing?[...(cur.photos||[])]:[];thumbs();LG=editing?(cur.logo||""):"";lprev();
+  $("pubb").disabled=false;$("sh3").textContent=t(editing?"esheet":"nsheet");$("pubb").textContent=t(editing?"save":"pub");$("sheet").classList.add("on");
+}
+function closeSheet(){$("sheet").classList.remove("on")}
+const clean=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,30);
+$("f_name").addEventListener("input",chk);
+const dv={"अ":"a","आ":"aa","इ":"i","ई":"ee","उ":"u","ऊ":"oo","ए":"e","ऐ":"ai","ओ":"o","औ":"au","क":"k","ख":"kh","ग":"g","घ":"gh","च":"ch","छ":"chh","ज":"j","झ":"jh","ट":"t","ठ":"th","ड":"d","ढ":"dh","ण":"n","त":"t","थ":"th","द":"d","ध":"dh","न":"n","प":"p","फ":"f","ब":"b","भ":"bh","म":"m","य":"y","र":"r","ल":"l","व":"v","श":"sh","ष":"sh","स":"s","ह":"h","ा":"a","ि":"i","ी":"ee","ु":"u","ू":"oo","े":"e","ै":"ai","ो":"o","ौ":"au","ं":"n","ँ":"n","ः":"h","्":"","़":""},cn=/[\u0915-\u0939]/;
+function slugify(x){const a=[...x];let o="";for(let i=0;i<a.length;i++){const m=dv[a[i]];if(m===undefined){o+=a[i];continue}o+=m;if(cn.test(a[i])&&cn.test(a[i+1]||""))o+="a"}return clean(o)}
+function chk(){
+  clearTimeout(tmr);const h=$("shint"),v=editing?cur.slug:slugify($("f_name").value);
+  if(!v){h.textContent="";return}
+  h.className="hint";h.textContent="?s="+v;if(editing)return;
+  tmr=setTimeout(async()=>{try{const d=await db.collection("portfolios").doc(v).get();if(slugify($("f_name").value)!==v)return;h.textContent=d.exists?t("taken"):"?s="+v+" · "+t("avail");h.className="hint "+(d.exists?"no":"ok")}catch(e){}},450);
+}
+let LG="";const lprev=()=>{$("lprev").src=LG;$("lprev").classList.toggle("hide",!LG)};
+const shrink=(f,mx=1200)=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,mx/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);c.toBlob(b=>b?ok(b):no(),"image/jpeg",.82)};i.onerror=no;i.src=r.result};r.onerror=no;r.readAsDataURL(f)});
+async function upl(b){const f=new FormData();f.append("file",b);f.append("upload_preset",PRESET);const r=await fetch("https://api.cloudinary.com/v1_1/"+CLOUD+"/image/upload",{method:"POST",body:f}),j=await r.json();if(!j.secure_url)throw 0;return j.secure_url.replace("/upload/","/upload/f_auto,q_auto,w_1000/")}
+$("f_logo").addEventListener("change",async ev=>{const f=ev.target.files[0];if(!f)return;$("pubb").disabled=true;$("lhint").textContent=t("up");try{LG=await upl(await shrink(f,1200));lprev()}catch(e){toast(t("err"))}ev.target.value="";$("lhint").textContent="";$("pubb").disabled=false});
+$("f_file").addEventListener("change",async ev=>{
+  const fs=[...ev.target.files];$("pubb").disabled=true;$("uph").textContent=t("up");
+  for(const f of fs){if(P.length>=8)break;try{P.push(await upl(await shrink(f)));thumbs()}catch(e){toast(t("err"))}}
+  ev.target.value="";$("uph").textContent="";$("pubb").disabled=false});
+async function pub(){
+  const g=id=>$(id).value.trim(),own=g("f_owner"),name=g("f_name"),loc=g("f_loc"),ph=g("f_phone");
+  if(!own||!name||!loc||!ph){toast(t("req"));return}
+  $("pubb").disabled=true;
+  const data={owner:own,name,loc,logo:LG,ph:num(ph),wa:num(g("f_wa"))||num(ph),about:g("f_about"),photos:P};
+  try{
+    if(editing){await db.collection("portfolios").doc(cur.slug).update({...data,ek:cur.ek});cdel(cur.slug);location.href="?s="+cur.slug;return}
+    const key=rk(),ek=await sha(key),b=slugify(name)||"shop-"+rk().slice(0,5);let slug=b;
+    for(let n=2;;n++){try{await db.runTransaction(async tx=>{const r=db.collection("portfolios").doc(slug);if((await tx.get(r)).exists)throw"taken";tx.set(r,{...data,ek,t:firebase.firestore.FieldValue.serverTimestamp()})});break}catch(e){if(e==="taken"&&n<30){slug=b+"-"+n;continue}throw e}}
+    localStorage.setItem("pf_mine",JSON.stringify({slug,key}));location.href="?s="+slug;
+  }catch(e){console.error(e);toast(e==="taken"?t("taken"):t("err")+" ("+(e.code||e.message||e)+")");$("pubb").disabled=false}
+}
+function copy(u){(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast(t("copied")),()=>prompt("",u))}
+function shareStore(){if(!cur)return;navigator.share?navigator.share({title:cur.name,url:url()}).catch(()=>{}):copy(url())}
+function copyEdit(){if(mine)copy(url()+"&k="+mine.key)}
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();dip=e});
+function installApp(){dip?(dip.prompt(),dip=null):toast(t("ins"))}
+init();
+</script>
+</body>
+</html>
